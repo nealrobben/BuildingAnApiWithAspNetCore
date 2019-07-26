@@ -5,6 +5,7 @@ using CoreCodeCamp.Data;
 using CoreCodeCamp.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace CoreCodeCamp.Controllers
@@ -15,11 +16,13 @@ namespace CoreCodeCamp.Controllers
     {
         private readonly ICampRepository _repository;
         private readonly IMapper _mapper;
+        private readonly LinkGenerator _linkGenerator;
 
-        public CampsController(ICampRepository repository, IMapper mapper)
+        public CampsController(ICampRepository repository, IMapper mapper, LinkGenerator linkGenerator)
         {
             _repository = repository;
             _mapper = mapper;
+            _linkGenerator = linkGenerator;
         }
 
         [HttpGet]
@@ -78,13 +81,29 @@ namespace CoreCodeCamp.Controllers
         {
             try
             {
-                //Create a new camp
-                return Ok();
+                var location = _linkGenerator.GetPathByAction("Get", "Camps",new {
+                    moniker = model.Moniker
+                });
+
+                if (string.IsNullOrWhiteSpace(location))
+                {
+                    return BadRequest("Could not use current moniker");
+                }
+
+                var camp = _mapper.Map<Camp>(model);
+                _repository.Add(camp);
+
+                if (await _repository.SaveChangesAsync())
+                {
+                    return Created(location, _mapper.Map<CampModel>(camp));
+                }
             }
             catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database failure");
             }
+
+            return BadRequest();
         }
     }
 }
