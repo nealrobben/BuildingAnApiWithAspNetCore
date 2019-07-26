@@ -1,4 +1,5 @@
-﻿using CoreCodeCamp.Data;
+﻿using AutoMapper;
+using CoreCodeCamp.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,8 @@ namespace CoreCodeCamp
     {
       services.AddDbContext<CampContext>();
       services.AddScoped<ICampRepository, CampRepository>();
+
+      services.AddAutoMapper();
 
       services.AddMvc()
         .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
