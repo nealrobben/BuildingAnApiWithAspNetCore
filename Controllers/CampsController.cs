@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 namespace CoreCodeCamp.Controllers
 {
     [Route("api/[controller]")]
+    [ApiController]
     public class CampsController : ControllerBase
     {
         private readonly ICampRepository _repository;
@@ -65,6 +66,20 @@ namespace CoreCodeCamp.Controllers
                     return NotFound();
 
                 return _mapper.Map<CampModel[]>(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database failure");
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<CampModel>> Post(CampModel model)
+        {
+            try
+            {
+                //Create a new camp
+                return Ok();
             }
             catch (Exception)
             {
